@@ -10,8 +10,6 @@ from skimage.metrics import peak_signal_noise_ratio as psnr
 from skimage.metrics import structural_similarity as ssim
 import lpips
 
-# Import your model and dataset classes from your training script
-# Make sure train_gan.py is in the same folder or accessible
 from train_gan import Generator, ImageRestorationDataset
 
 ## 1. CONFIGURATION
@@ -20,8 +18,8 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 1 # Process one image at a time for evaluation
 IMAGE_SIZE = 256
 
-# --- IMPORTANT: UPDATE THIS PATH ---
-# Path to your saved generator model from training
+
+# Path to the saved generator model from training
 GEN_MODEL_PATH = "saved_models/gen_epoch_499.pth" 
 
 # Test data folders
@@ -68,7 +66,6 @@ for corrupted_img_tensor, clean_img_tensor in loop:
         restored_img_tensor = gen(corrupted_img_tensor)
 
     # --- Calculate metrics ---
-    # Convert tensors to format suitable for metric calculation
     clean_np = tensor_to_numpy(clean_img_tensor)
     restored_np = tensor_to_numpy(restored_img_tensor)
     
@@ -77,12 +74,10 @@ for corrupted_img_tensor, clean_img_tensor in loop:
     psnr_scores.append(current_psnr)
     
     # 2. SSIM
-    # For multichannel (RGB), specify multichannel=True
     current_ssim = ssim(clean_np, restored_np, data_range=255, multichannel=True, channel_axis=2)
     ssim_scores.append(current_ssim)
     
     # 3. LPIPS
-    # LPIPS function expects tensors in range [-1, 1], which is what our model outputs
     current_lpips = loss_fn_lpips(restored_img_tensor, clean_img_tensor)
     lpips_scores.append(current_lpips.item())
     
